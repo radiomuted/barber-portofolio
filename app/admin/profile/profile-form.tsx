@@ -104,8 +104,8 @@ export function AdminProfileForm({ initial }: { initial: Profile | null }) {
         }
       }}
     >
-      <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
-        <div className="grid gap-4">
+      <div className="grid grid-cols-1 items-start gap-8 xl:grid-cols-[minmax(260px,300px)_minmax(0,1fr)]">
+        <div className="grid w-full max-w-sm shrink-0 gap-4 xl:max-w-none">
           <PhotoUploadCard
             title="Foto Hero"
             description="Ditampilkan di bagian atas (hero)."
@@ -122,7 +122,7 @@ export function AdminProfileForm({ initial }: { initial: Profile | null }) {
           />
         </div>
 
-        <div className="grid gap-4">
+        <div className="grid min-w-0 w-full gap-4">
           <Field label="Name">
             <input
               className="focus-ring rounded-xl border border-stroke bg-bg/40 px-4 py-3"
@@ -148,7 +148,7 @@ export function AdminProfileForm({ initial }: { initial: Profile | null }) {
             />
           </Field>
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <Field label="Years of Experience">
               <input
                 className="focus-ring rounded-xl border border-stroke bg-bg/40 px-4 py-3"
@@ -254,7 +254,7 @@ function PhotoUploadCard({
   onUpload: (file: File) => void;
 }) {
   return (
-    <div className="rounded-2xl border border-stroke bg-brown/10 p-4">
+    <div className="w-full overflow-hidden rounded-2xl border border-stroke bg-brown/10 p-4">
       <div className="text-sm font-semibold">{title}</div>
       <p className="mt-1 text-xs text-muted">{description}</p>
       <div className="relative mt-4 aspect-[4/5] overflow-hidden rounded-xl border border-stroke bg-bg/40">
