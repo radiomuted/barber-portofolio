@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id         String   @id @default("profile")
+  name       String   @default("Ahmad Farid Setiawan")
+  tagline    String   @default("Precision Cuts. Timeless Style.")
+  bio        String
+  experience Int      @default(0)
+  clients    Int      @default(0)
+  styles     Int      @default(0)
+  phone      String?
+  instagram  String?
+  linkedin   String?
+  tiktok     String?
+  facebook   String?
+  avatarUrl  String?
+  aboutImageUrl String?
+  updatedAt  DateTime @updatedAt
+}
+
+model Service {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  price       String
+  icon        String?
+  order       Int    @default(0)
+}
+
+model GalleryItem {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  category  String   @default("all")
+  caption   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Testimonial {
+  id        String  @id @default(cuid())
+  author    String
+  review    String
+  rating    Int     @default(5)
+  published Boolean @default(true)
+  order     Int     @default(0)
+}
+
