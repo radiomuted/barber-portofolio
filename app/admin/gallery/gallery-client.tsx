@@ -13,8 +13,12 @@ async function uploadFile(file: File) {
   const data = (await res.json().catch(() => null)) as
     | { ok?: boolean; path?: string; error?: string }
     | null;
-  if (!res.ok || !data?.ok || !data.path)
-    throw new Error(data?.error || "Upload failed");
+  if (!res.ok) {
+    throw new Error(data?.error || `Upload failed (${res.status})`);
+  }
+  if (!data?.ok || !data.path) {
+    throw new Error(data?.error || "Upload failed (invalid response)");
+  }
   return data.path;
 }
 
@@ -27,6 +31,7 @@ const categoryOptions = [
 export function AdminGalleryClient({ initial }: { initial: GalleryItem[] }) {
   const [items, setItems] = React.useState<GalleryItem[]>(initial);
   const [uploading, setUploading] = React.useState(false);
+  const [replacingId, setReplacingId] = React.useState<string | null>(null);
 
   const [category, setCategory] = React.useState<string>("fade");
   const [caption, setCaption] = React.useState<string>("");
@@ -39,6 +44,28 @@ export function AdminGalleryClient({ initial }: { initial: GalleryItem[] }) {
     if (!res.ok || !data?.ok || !data.items)
       throw new Error(data?.error || "Fetch failed");
     setItems(data.items);
+  }
+
+  async function replaceImage(itemId: string, file: File) {
+    setReplacingId(itemId);
+    try {
+      const path = await uploadFile(file);
+      const res = await fetch("/api/admin/gallery", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: itemId, imageUrl: path }),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | { ok?: boolean; error?: string }
+        | null;
+      if (!res.ok || !data?.ok) throw new Error(data?.error || "Gagal mengganti foto");
+      toast.success("Foto diganti");
+      await refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal mengganti foto");
+    } finally {
+      setReplacingId(null);
+    }
   }
 
   async function persistReorder(next: GalleryItem[]) {
@@ -183,6 +210,25 @@ export function AdminGalleryClient({ initial }: { initial: GalleryItem[] }) {
                     </button>
                   </div>
                 </div>
+
+                <label className="grid gap-2 text-sm">
+                  <span className="text-muted">Ganti foto</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="focus-ring rounded-xl border border-stroke bg-bg/40 px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-gold file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-bg"
+                    disabled={replacingId === it.id || uploading}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      await replaceImage(it.id, file);
+                      e.target.value = "";
+                    }}
+                  />
+                  {replacingId === it.id ? (
+                    <span className="text-xs text-gold">Mengunggah foto baru…</span>
+                  ) : null}
+                </label>
 
                 <label className="grid gap-2 text-sm">
                   <span className="text-muted">Caption</span>

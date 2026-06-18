@@ -40,7 +40,12 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   if (!(await requireAdmin())) return unauthorized();
   const body = (await req.json().catch(() => null)) as
-    | { id?: string; category?: string; caption?: string | null }
+    | {
+        id?: string;
+        imageUrl?: string;
+        category?: string;
+        caption?: string | null;
+      }
     | null;
   if (!body?.id) {
     return NextResponse.json({ ok: false, error: "id required" }, { status: 400 });
@@ -49,6 +54,7 @@ export async function PUT(req: Request) {
   const item = await prisma.galleryItem.update({
     where: { id: body.id },
     data: {
+      imageUrl: body.imageUrl,
       category: body.category ? body.category.toLowerCase() : undefined,
       caption: body.caption ?? null,
     },
